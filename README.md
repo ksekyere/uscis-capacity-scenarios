@@ -8,7 +8,10 @@ It is built for researchers who want to see, quickly and transparently, whether 
 
 ## What the dashboard shows
 
-One selector at the top chooses the scope: all forms, a USCIS category (citizenship, permanent residence, family-based, employment-based, humanitarian, other, supplemental processing) or a single form. Every section follows it.
+The page has two views, each with its own link so it can be shared directly:
+
+- **USCIS caseload** (`#findings`). One selector chooses the scope: all forms, a USCIS category (citizenship, permanent residence, family-based, employment-based, humanitarian, other, supplemental processing) or a single form. Every section in this view follows it.
+- **Asylum & global context** (`#context`). Asylum demand, countries of origin, displacement and population data from the UN, World Bank and UCDP. It does not change with the selector, and links back to the asylum and humanitarian forms in the caseload view.
 
 | Section | Question it answers |
 |---|---|

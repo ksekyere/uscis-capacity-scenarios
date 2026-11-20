@@ -50,7 +50,17 @@ h3{font-size:16px;font-weight:700;line-height:1.3}
 .top-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;padding-block:12px}
 .brand{font-weight:750;font-size:15px;text-decoration:none}
 .brand small{font-family:var(--mono);font-weight:400;font-size:11.5px;color:var(--ink-2);margin-left:8px}
-nav{display:flex;flex-wrap:wrap;gap:2px 16px}
+nav{display:flex;flex-wrap:wrap;gap:2px 16px;padding-block:0 8px}
+nav[hidden],.scope[hidden],.view[hidden]{display:none}
+.views{display:inline-flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.views a{font-size:14px;font-weight:650;text-decoration:none;color:var(--ink-2);padding:7px 12px;background:var(--bg)}
+.views a+a{border-left:1px solid var(--rule)}
+.views a[aria-current="page"]{background:var(--ink);color:var(--panel)}
+.view{display:flex;flex-direction:column;gap:inherit}
+.ctx-links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14.5px}
+.ctx-hint{font-size:14.5px;background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--done);border-radius:4px;padding:10px 14px}
+.ctx-hint[hidden]{display:none}
+#o-panel{scroll-margin-top:140px}
 nav a{font-size:14px;color:var(--ink-2);text-decoration:none;padding-block:4px}
 nav a:hover{color:var(--ink)}
 .scope{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-block:0 12px}
@@ -59,7 +69,7 @@ nav a:hover{color:var(--ink)}
 .scope .asof{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
 
 main{padding-block:36px 64px;display:flex;flex-direction:column;gap:56px}
-section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:120px}
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:140px}
 .sec-head{display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--ink);padding-top:14px}
 .sec-head p{color:var(--ink-2);max-width:72ch}
 
@@ -163,12 +173,18 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
   <div class="wrap">
     <div class="top-in">
       <a class="brand" href="#findings">USCIS Capacity Scenarios<small>FY2013–FY2030</small></a>
-      <nav aria-label="Sections">
-        <a href="#findings">Findings</a><a href="#caseload">Caseload</a><a href="#capacity">Capacity</a>
-        <a href="#scenarios">Scenarios</a><a href="#asylum">Asylum demand</a><a href="#citizenship">Citizenship</a><a href="#global">Global</a><a href="#notes">Data notes</a>
-      </nav>
+      <div class="views" aria-label="Views">
+        <a href="#findings" data-view-link="uscis">USCIS caseload</a><a href="#context" data-view-link="global">Asylum &amp; global context</a>
+      </div>
     </div>
-    <div class="scope">
+    <nav aria-label="Sections in this view" data-nav="uscis">
+      <a href="#findings">Findings</a><a href="#caseload">Caseload</a><a href="#capacity">Capacity</a>
+      <a href="#scenarios">Scenarios</a><a href="#citizenship">Citizenship</a><a href="#notes">Data notes</a>
+    </nav>
+    <nav aria-label="Sections in this view" data-nav="global" hidden>
+      <a href="#context">Overview</a><a href="#asylum">Asylum demand</a><a href="#o-panel">Countries of origin</a><a href="#global">Displacement and population</a><a href="#notes">Data notes</a>
+    </nav>
+    <div class="scope" id="scope-row">
       <label for="scope">Showing</label>
       <select id="scope" aria-describedby="asof"></select>
       <span class="asof" id="asof">Loading data…</span>
@@ -177,12 +193,14 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
 </header>
 
 <main class="wrap" id="main">
+<div class="view" id="view-uscis">
   <section id="findings" aria-labelledby="h-find">
     <span class="kicker">U.S. Citizenship and Immigration Services caseload</span>
     <h1 id="h-find">Is US immigration processing keeping pace with demand?</h1>
     <p class="lede">Applications received, completed and still pending at USCIS each fiscal year since 2013, with scenarios for the caseload through FY2030. Choose all forms, a category or a single form above; every chart and scenario follows your choice.</p>
     <p class="summary" id="summary" aria-live="polite"></p>
     <div class="cards" id="cards"></div>
+    <p class="ctx-hint" id="ctx-hint" hidden>For asylum demand worldwide, the countries people are leaving and displacement data, see <a href="#context">Asylum &amp; global context</a>.</p>
   </section>
 
   <section id="caseload" aria-labelledby="h-case">
@@ -233,9 +251,28 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
     </div>
   </section>
 
+  <section id="citizenship" aria-labelledby="h-cit">
+    <div class="sec-head"><span class="kicker">Demand for citizenship</span><h2 id="h-cit">The path to citizenship, form by form</h2>
+      <p>Naturalization applications (N-400) measure demand for citizenship directly. Future demand depends on the earlier steps: family petitions, permanent residence and removing conditions on it. Most permanent residents can apply to naturalize after three to five years. Select a card to load that form above.</p></div>
+    <div class="panel"><h3 id="t-n400">Naturalization (N-400): received and completed each year</h3><svg class="chart" id="c-n400" role="img" aria-labelledby="t-n400"></svg>
+      <div class="legend"><span><i style="border-color:var(--recv)"></i>Received</span><span><i style="border-color:var(--done)"></i>Completed</span><span><i class="dash" style="border-color:var(--ink-3)"></i>FY2026 annual pace</span></div>
+      <p class="note" id="n400-note"></p></div>
+    <div class="pipe" id="pipe"></div>
+  </section>
+
+</div>
+
+<div class="view" id="view-global" hidden>
+  <section id="context" aria-labelledby="h-ctx">
+    <span class="kicker">Asylum and global context</span>
+    <h1 id="h-ctx">Who is seeking protection, and where?</h1>
+    <p class="lede">The USCIS caseload is one part of a wider picture. This view sets affirmative asylum against new asylum claims worldwide, the countries people are leaving, how many people are displaced and where they are hosted, and how populations in high-income countries are changing. It uses UN, World Bank and conflict data and does not change with the form selector.</p>
+    <p class="ctx-links"><a href="#caseload" data-scope="form:I-589">Affirmative asylum (I-589) in the USCIS caseload view</a><a href="#caseload" data-scope="cat:Humanitarian">All humanitarian forms</a></p>
+  </section>
+
   <section id="asylum" aria-labelledby="h-asy">
     <div class="sec-head"><span class="kicker">Modeled demand</span><h2 id="h-asy">Asylum demand: what global claims imply for USCIS</h2>
-      <p>Applications received measure what people were able to file, not how many people seek protection. This section estimates demand for affirmative asylum (form I-589) from UNHCR's count of new asylum claims worldwide: <b>world claims × US share of those claims × I-589 forms per 100 US claims</b>. It covers asylum only; most other USCIS forms are limited by visa caps or eligibility rules, so global pressure shows up in waiting lists rather than filings. The estimate is speculative, and each assumption is a control you can change. This section is not affected by the selector above.</p></div>
+      <p>Applications received measure what people were able to file, not how many people seek protection. This section estimates demand for affirmative asylum (form I-589) from UNHCR's count of new asylum claims worldwide: <b>world claims × US share of those claims × I-589 forms per 100 US claims</b>. It covers asylum only; most other USCIS forms are limited by visa caps or eligibility rules, so global pressure shows up in waiting lists rather than filings. The estimate is speculative, and each assumption is a control you can change.</p></div>
     <div class="grid2">
       <div class="panel"><h3 id="a-t-claims">New asylum claims worldwide and in the United States</h3><svg class="chart" id="a-claims" role="img" aria-labelledby="a-t-claims"></svg>
         <p class="note" id="a-n-claims"></p></div>
@@ -275,18 +312,9 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
     </div>
   </section>
 
-  <section id="citizenship" aria-labelledby="h-cit">
-    <div class="sec-head"><span class="kicker">Demand for citizenship</span><h2 id="h-cit">The path to citizenship, form by form</h2>
-      <p>Naturalization applications (N-400) measure demand for citizenship directly. Future demand depends on the earlier steps: family petitions, permanent residence and removing conditions on it. Most permanent residents can apply to naturalize after three to five years. Select a card to load that form above.</p></div>
-    <div class="panel"><h3 id="t-n400">Naturalization (N-400): received and completed each year</h3><svg class="chart" id="c-n400" role="img" aria-labelledby="t-n400"></svg>
-      <div class="legend"><span><i style="border-color:var(--recv)"></i>Received</span><span><i style="border-color:var(--done)"></i>Completed</span><span><i class="dash" style="border-color:var(--ink-3)"></i>FY2026 annual pace</span></div>
-      <p class="note" id="n400-note"></p></div>
-    <div class="pipe" id="pipe"></div>
-  </section>
-
   <section id="global" aria-labelledby="h-glob">
     <div class="sec-head"><span class="kicker">Global context</span><h2 id="h-glob">Displacement, hosting and aging worldwide</h2>
-      <p>This section is not affected by the selector above. It sets the USCIS numbers against UN and World Bank data: how many people are forcibly displaced, which countries host them, and how populations in high-income countries are changing. Some of these trends support the argument that high-income countries will need to take in more people; others complicate it. Both are shown as the data falls.</p></div>
+      <p>This section sets the USCIS numbers against UN and World Bank data: how many people are forcibly displaced, which countries host them, and how populations in high-income countries are changing. Some of these trends support the argument that high-income countries will need to take in more people; others complicate it. Both are shown as the data falls.</p></div>
     <div class="panel"><h3 id="g-t-disp">Forcibly displaced people worldwide</h3><svg class="chart" id="g-disp" role="img" aria-labelledby="g-t-disp"></svg>
       <div class="legend"><span><i style="border-color:var(--ink)"></i>All forcibly displaced</span><span><i style="border-color:var(--recv)"></i>Displaced inside their own country</span><span><i style="border-color:var(--done)"></i>Crossed a border (refugees, asylum seekers and others)</span></div>
       <p class="note" id="g-n-disp"></p></div>
@@ -301,6 +329,8 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
     <div id="g-wb"></div>
     <p class="small" id="g-src"></p>
   </section>
+
+</div>
 
   <section id="notes" aria-labelledby="h-notes">
     <div class="sec-head"><span class="kicker">Method</span><h2 id="h-notes">Data notes</h2></div>
@@ -376,14 +406,15 @@ function chart(svg,o){
   const ymin=o.ymin||0,ymax=o.ymax||niceMax(Math.max(...vals,0)*1.05),step=(W-L-R)/n,x=i=>L+step*(i+.5),y=v=>T+(H-T-B)*(1-(v-ymin)/(ymax-ymin));
   let h="";for(let k=0;k<=4;k++){const v=ymin+(ymax-ymin)*k/4;h+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${(o.yfmt||fmtShort)(v)}</text>`}
   const every=o.every||Math.max(1,Math.ceil(36/step));years.forEach((yr,i)=>{if((i%every===0&&n-1-i>=every)||i===n-1)h+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${o.xfmt?o.xfmt(yr,i):fy(yr)}</text>`});
-  if(o.ref!=null)h+=`<line x1="${L}" x2="${W-R}" y1="${y(o.ref)}" y2="${y(o.ref)}" stroke="var(--ink)" stroke-width="1.5"/><text x="${W-R+6}" y="${y(o.ref)+4}" class="lbl" style="fill:var(--ink)">${o.ref}</text>`;
+  if(o.ref!=null)h+=`<line x1="${L}" x2="${W-R}" y1="${y(o.ref)}" y2="${y(o.ref)}" stroke="var(--ink)" stroke-width="1.5"/>${o.refLabel?`<text x="${L+6}" y="${y(o.ref)-6}" class="lbl" style="fill:var(--ink);font-weight:500">${esc(o.refLabel)}</text>`:`<text x="${W-R+6}" y="${y(o.ref)+4}" class="lbl" style="fill:var(--ink)">${o.ref}</text>`}`;
   const labels=[];
   o.series.forEach(s=>{
     if(s.type==="bar"){const bw=Math.min(28,step*.68);s.values.forEach((v,i)=>{if(v==null)return;const c=typeof s.color==="function"?s.color(v,i):s.color,y0=o.barBase!=null?y(o.barBase):y(ymin),yy=y(v);
       h+=`<rect x="${x(i)-bw/2}" y="${Math.min(yy,y0)}" width="${bw}" height="${Math.max(1,Math.abs(y0-yy))}" rx="1.5" style="fill:var(${c})${s.partial&&i===n-1?";opacity:.55":""}"><title>${esc(s.tip?s.tip(v,i):fy(years[i])+": "+fmtFull(v))}</title></rect>`});return}
     const pts=s.values.map((v,i)=>v==null?null:[x(i),y(v),v,i]);let d="",dd="";
-    pts.forEach((p,i)=>{if(!p)return;const prev=pts[i-1];const dashed=s.dashFrom!=null&&i>=s.dashFrom;
-      if(dashed&&prev){dd+=`M${prev[0]} ${prev[1]}L${p[0]} ${p[1]}`}else d+=(prev&&!(s.dashFrom!=null&&i>s.dashFrom)?"L":"M")+p[0]+" "+p[1]});
+    let lastPt=null;
+    pts.forEach((p,i)=>{if(!p)return;const prev=o.connect?lastPt:pts[i-1];lastPt=p;const dashed=s.dashFrom!=null&&i>=s.dashFrom;
+      if(dashed&&prev){dd+=`M${prev[0]} ${prev[1]}L${p[0]} ${p[1]}`}else d+=(prev&&!(s.dashFrom!=null&&prev[3]>=s.dashFrom)?"L":"M")+p[0]+" "+p[1]});
     h+=`<path d="${d}" fill="none" style="stroke:var(${s.color})" stroke-width="${s.width||2.25}" stroke-linejoin="round"${s.opacity?` opacity="${s.opacity}"`:""}/>`;
     if(dd)h+=`<path d="${dd}" fill="none" style="stroke:var(${s.color})" stroke-width="${s.width||2.25}" stroke-dasharray="4 4"${s.opacity?` opacity="${s.opacity}"`:""}/>`;
     if(s.dots!==false)pts.forEach(p=>{if(!p)return;const hollow=s.dashFrom!=null&&p[3]>=s.dashFrom;
@@ -418,6 +449,7 @@ function drawFindings(){
   else if(sum)sum+=".";
   $("summary").innerHTML=sum;
   const card=(lab,big,sub,cls="")=>`<div class="card"><span class="lab">${lab}</span><span class="big ${cls}">${big}</span><span class="sub">${sub}</span></div>`;
+  {const g=D.groups.find(z=>z.id===st.scope);$("ctx-hint").hidden=!(st.scope==="cat:Humanitarian"||(g&&g.category==="Humanitarian"))}
   $("cards").innerHTML=
     card("Pending, June 2026",fmtShort(p1),p0?`${(p1/p0).toFixed(1)}× the FY${D.years[first]} level of ${fmtShort(p0)}`:"","pend")+
     card("Backlog in months of work",m1!=null?Math.round(m1)+" mo":"–",m0!=null?`${Math.round(m0)} months in FY${D.years[first]}`:"At the FY2026 completion pace","pend")+
@@ -549,29 +581,36 @@ function drawWB(){
     $("g-pc-n").textContent=`${top.name} hosted the most refugees relative to its population.${us?` The United States ranked ${us.rank} of ${pc.ranked} countries with at least 1 million residents (${us.per1000.toFixed(1)} per 1,000).`:""}`}
   // demography
   const dm=G.demography;
-  const demoChart=(key,id,o)=>{const x=dm&&dm.series[key];if(!x)return null;const ys=x.years,pf=ys.findIndex(y=>y>=dm.projection_from);
-    chart($(id),{years:ys,xfmt:yr,width:560,right:110,...o,series:["LMY","WLD","USA","HIC"].filter(k=>x[k]).map(k=>({values:x[k],color:COL[k],label:NAMES[k],dots:false,dashFrom:pf>0?pf:null,width:k==="HIC"||k==="USA"?2.5:1.75,
+  const demoChart=(key,id,o)=>{const raw=dm&&dm.series[key];if(!raw)return null;
+    const ys=[];for(let y=raw.years[0];y<=raw.years.at(-1);y++)ys.push(y);
+    const x={years:ys};Object.keys(NAMES).forEach(k=>{if(raw[k])x[k]=ys.map(y=>{const i=raw.years.indexOf(y);return i>=0?raw[k][i]:null})});
+    const pf=ys.findIndex(y=>y>=dm.projection_from);
+    chart($(id),{years:ys,xfmt:yr,width:560,right:140,connect:true,...o,series:["LMY","WLD","USA","HIC"].filter(k=>x[k]&&x[k].some(v=>v!=null)).map(k=>({values:x[k],color:COL[k],label:NAMES[k],dots:false,dashFrom:pf>0?pf:null,width:k==="HIC"||k==="USA"?2.5:1.75,
       tip:(v,i)=>`${NAMES[k]}, ${ys[i]}: ${v.toFixed(o.dec??1)}${pf>0&&i>=pf?" (projected)":""}`}))});return x};
   const ag=demoChart("old_age_dependency","g-age",{yfmt:v=>Math.round(v)});
-  if(ag){const ys=ag.years,end=ys.at(-1),h0=ag.HIC[0],h1=ag.HIC.at(-1),u0=ag.USA[0],u1=ag.USA.at(-1);
-    $("g-age-t").textContent=`People aged 65 and over for every 100 aged 15–64: high-income countries ${Math.round(h0)} in ${ys[0]}, ${Math.round(h1)} by ${end}`;
+  if(ag){const ys=ag.years,end=ys.at(-1),h0=ag.HIC&&ag.HIC[0],h1=ag.HIC&&ag.HIC.at(-1),u0=ag.USA[0],u1=ag.USA.at(-1);
+    $("g-age-t").textContent=h0!=null&&h1!=null?`People aged 65 and over for every 100 aged 15–64: high-income countries ${Math.round(h0)} in ${ys[0]}, ${Math.round(h1)} by ${end}`:"People aged 65 and over for every 100 aged 15–64 (high-income average not available)";
     $("g-age-n").textContent=`United States: ${Math.round(u0)} in ${ys[0]}, ${Math.round(u1)} by ${end}. Dashed lines are projections${dm.sources.old_age_dependency.source.includes("projections")?" from the World Bank's Population estimates and projections":""}. A higher ratio means fewer working-age people per older person.`}
-  const fe=demoChart("fertility","g-fert",{ref:2.1,dec:2,yfmt:v=>v.toFixed(1),ymax:4});
+  const fe=demoChart("fertility","g-fert",{ref:2.1,refLabel:"Replacement level, about 2.1",dec:2,yfmt:v=>v.toFixed(1),ymax:4});
   if(fe){const obs=a=>lastOf(fe.years,fe.years.map((y,i)=>y<dm.projection_from?a[i]:null)),lh=obs(fe.HIC||[]),lu=obs(fe.USA||[]);
-    if(lh)$("g-fert-t").textContent=`Births per woman in high-income countries: ${lh.v.toFixed(2)} in ${lh.y}, ${lh.v<2.1?"below":"at or above"} the replacement level of about 2.1`;
-    $("g-fert-n").textContent=`${lu?`United States: ${lu.v.toFixed(2)} in ${lu.y}. `:""}Replacement level is the average number of births per woman that keeps a population stable without migration. Dashed lines are projections.`}
+    const lw=obs(fe.WLD||[]),lead=lh?["high-income countries",lh]:lu?["the United States",lu]:null;
+    $("g-fert-t").textContent=lead?`Births per woman in ${lead[0]}: ${lead[1].v.toFixed(2)} in ${lead[1].y}, ${lead[1].v<2.1?"below":"at or above"} the replacement level of about 2.1${lw?` (world: ${lw.v.toFixed(2)})`:""}`:"Births per woman";
+    $("g-fert-n").textContent=`${lu&&lh?`United States: ${lu.v.toFixed(2)} in ${lu.y}. `:""}Replacement level is the average number of births per woman that keeps a population stable without migration. Dashed lines are projections.`}
   // migration
   const mg=G.migration||{};
   if(mg.net_migration){const x=mg.net_migration,ys=x.years.filter(y=>y>=2000),off=x.years.indexOf(ys[0]),sl=a=>a.slice(off);
-    chart($("g-net"),{years:ys,xfmt:yr,right:110,series:["HIC","USA"].filter(k=>x[k]).map(k=>({values:sl(x[k]),color:COL[k],label:NAMES[k],dots:false,tip:(v,i)=>`${NAMES[k]}, ${ys[i]}: ${fmtFull(v)}`}))});
+    chart($("g-net"),{years:ys,xfmt:yr,right:110,series:["HIC","USA"].filter(k=>x[k]&&x[k].some(v=>v!=null)).map(k=>({values:sl(x[k]),color:COL[k],label:NAMES[k],dots:false,tip:(v,i)=>`${NAMES[k]}, ${ys[i]}: ${fmtFull(v)}`}))});
     const lh=lastOf(ys,sl(x.HIC||[])),lu=lastOf(ys,sl(x.USA||[]));
-    if(lh)$("g-net-t").textContent=`Net migration ${lh.v>=0?"added":"removed"} ${fmtWords(Math.abs(lh.v))} people to high-income countries in ${lh.y}`;
-    $("g-net-n").textContent=`${lu?`United States: ${lu.v>=0?"+":"−"}${fmtWords(Math.abs(lu.v))} in ${lu.y}. `:""}Immigrants minus emigrants, from the UN World Population Prospects as published by the World Bank. Recent years are estimates.`}
+    const us=sl(x.USA||[]),pk=us.reduce((b,v,i)=>v!=null&&(b<0||v>us[b])?i:b,-1),lo=us.reduce((b,v,i)=>v!=null&&(b<0||v<us[b])?i:b,-1),sw=v=>`${v<0?"−":""}${fmtWords(Math.abs(v))}`;
+    $("g-net-t").textContent=lh?`Net migration ${lh.v>=0?"added":"removed"} ${fmtWords(Math.abs(lh.v))} people to high-income countries in ${lh.y}`
+      :lu?`Net migration added ${sw(lu.v)} people to the United States in ${lu.y}, after a peak of ${sw(us[pk])} in ${ys[pk]} and a low of ${sw(us[lo])} in ${ys[lo]}`:"Net migration";
+    $("g-net-n").textContent=`${lu&&lh?`United States: ${lu.v>=0?"+":"−"}${fmtWords(Math.abs(lu.v))} in ${lu.y}. `:""}Immigrants minus emigrants, from the UN World Population Prospects as published by the World Bank. Recent years are estimates.`}
   if(mg.migrant_stock_pct){const x=mg.migrant_stock_pct,ys=x.years;
-    chart($("g-stock"),{years:ys,xfmt:yr,every:1,right:110,yfmt:v=>Math.round(v)+"%",series:["WLD","HIC","USA"].filter(k=>x[k]).map(k=>({values:x[k],color:COL[k],label:NAMES[k],tip:(v,i)=>`${NAMES[k]}, ${ys[i]}: ${v.toFixed(1)}%`}))});
+    chart($("g-stock"),{years:ys,xfmt:yr,every:1,right:110,yfmt:v=>Math.round(v)+"%",series:["WLD","HIC","USA"].filter(k=>x[k]&&x[k].some(v=>v!=null)).map(k=>({values:x[k],color:COL[k],label:NAMES[k],tip:(v,i)=>`${NAMES[k]}, ${ys[i]}: ${v.toFixed(1)}%`}))});
     const lu=lastOf(ys,x.USA||[]),lh=lastOf(ys,x.HIC||[]);
-    if(lu&&lh)$("g-stock-t").textContent=`International migrants were ${lu.v.toFixed(1)}% of US residents in ${lu.y}, compared with ${lh.v.toFixed(1)}% across high-income countries`;
-    $("g-stock-n").textContent="People living outside their country of birth or citizenship, from UN DESA's International Migrant Stock, published every five years."}
+    const u0=(x.USA||[]).find(v=>v!=null),lw=lastOf(ys,x.WLD||[]);
+    $("g-stock-t").textContent=lu?`International migrants were ${lu.v.toFixed(1)}% of US residents in ${lu.y}, up from ${u0.toFixed(1)}% in ${ys[0]}`+(lh?`; ${lh.v.toFixed(1)}% across high-income countries`:"")+(lw?`; ${lw.v.toFixed(1)}% worldwide`:""):"International migrants as a share of residents";
+    $("g-stock-n").textContent="People living in a country other than the one they were born in (or, where birthplace isn't recorded, whose citizenship is foreign), whatever their legal status, from UN DESA's International Migrant Stock, published every five years."}
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-host]");if(b&&G){hostView=b.dataset.host;drawHosts()}});
 
@@ -740,9 +779,21 @@ document.addEventListener("click",e=>{
   const p=e.target.closest("[data-preset]");if(p&&!p.disabled){const pr=presets(S()).find(x=>x.id===p.dataset.preset);
     st.preset=pr.id;st.base="fy26";st.gr=Math.round(pr.gr*100);st.gc=Math.round(pr.gc*100);
     $("base").value="fy26";$("g-r").value=st.gr;$("g-c").value=st.gc;drawScenarios();return}
-  const sc=e.target.closest("[data-scope]");if(sc){st.scope=sc.dataset.scope;$("scope").value=st.scope;drawAll();window.scrollTo({top:0})}
+  const sc=e.target.closest("[data-scope]");if(sc){e.preventDefault();st.scope=sc.dataset.scope;$("scope").value=st.scope;drawAll();
+    history.pushState(null,"","#findings");route();window.scrollTo({top:0})}
 });
 
+/* ---------- two views: USCIS caseload (follows the selector) and asylum & global context ---------- */
+let view="uscis";
+function setView(v){view=v;
+  $("view-uscis").hidden=v!=="uscis";$("view-global").hidden=v!=="global";$("scope-row").hidden=v!=="uscis";
+  document.querySelectorAll("[data-nav]").forEach(n=>n.hidden=n.dataset.nav!==v);
+  document.querySelectorAll("[data-view-link]").forEach(a=>a.dataset.viewLink===v?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"))}
+function route(){const id=location.hash.slice(1),el=id&&document.getElementById(id);
+  if(el&&id!=="notes")setView($("view-global").contains(el)?"global":"uscis");
+  if(el)requestAnimationFrame(()=>el.scrollIntoView())}
+window.addEventListener("hashchange",route);
+route();
 fetch("data/uscis_dashboard.json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{
   D=d;buildScope();
   $("asof").textContent=`FY${d.meta.first_fy}–FY${d.meta.latest_fy} · data as of ${d.meta.as_of}`;

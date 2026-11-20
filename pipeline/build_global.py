@@ -71,6 +71,9 @@ SHORT_NAMES = {"United States of America": "United States", "Iran (Islamic Rep. 
                "United Rep. of Tanzania": "Tanzania", "Russian Federation": "Russia",
                "Bolivia (Plurinational State of)": "Bolivia", "Türkiye": "Türkiye"}
 PROJECTION_END = 2050
+# Some World Bank databases (such as Population estimates and projections) return aggregates
+# with an empty ISO3 code and only the 2-letter World Bank id, so map those ids back.
+WB_ID_ISO3 = {"XD": "HIC", "1W": "WLD", "XO": "LMY", "US": "USA"}
 AGGREGATES = {"WLD": "World", "HIC": "High-income countries", "LMY": "Low- and middle-income countries", "USA": "United States"}
 
 session = requests.Session()
@@ -308,15 +311,33 @@ def wb_series(code: str, countries: list[str], source: int, end: int) -> pd.Data
                   {"format": "json", "date": f"{FIRST_YEAR}:{end}", "per_page": 20000, "source": source})
     if not payload or len(payload) < 2 or not payload[1]:
         return pd.DataFrame(columns=["iso", "year", "value"])
-    df = pd.DataFrame({"iso": r["countryiso3code"] or r["country"]["id"], "year": int(r["date"]), "value": r["value"]}
-                      for r in payload[1])
-    return df.dropna(subset=["value"])
+    df = pd.DataFrame({"iso": r["countryiso3code"] or WB_ID_ISO3.get(r["country"]["id"], r["country"]["id"]),
+                       "year": int(r["date"]), "value": r["value"]} for r in payload[1]).dropna(subset=["value"])
+    # Some aggregates (such as high income) can be dropped from a multi-country request: ask for each
+    # missing one on its own, by its 3-letter code and then its 2-letter World Bank id.
+    alias = {v: k for k, v in WB_ID_ISO3.items()}
+    if len(countries) > 1 and countries != ["all"]:
+        for iso in [c for c in countries if c not in set(df["iso"])]:
+            for code_try in (iso, alias.get(iso)):
+                if not code_try:
+                    continue
+                one = wb_series(code, [code_try], source, end)
+                if not one.empty:
+                    df = pd.concat([df, one.assign(iso=iso)], ignore_index=True)
+                    break
+            else:
+                print(f"  ! World Bank {code} (source {source}): no data for {iso}", file=sys.stderr)
+    return df
 
 
 def wb_with_projections(code: str) -> tuple[pd.DataFrame, str]:
     """Try the Population estimates and projections database (to 2050), then WDI history only."""
     df = wb_series(code, list(AGGREGATES), 40, PROJECTION_END)
     if not df.empty:
+        missing = [iso for iso in AGGREGATES if iso not in set(df["iso"])]
+        if missing:   # fill any group the projections database lacks with WDI history
+            print(f"  ! {code}: no projections for {', '.join(missing)}; using WDI history for them", file=sys.stderr)
+            df = pd.concat([df, wb_series(code, missing, 2, datetime.now().year)], ignore_index=True)
         return df, "Population estimates and projections"
     return wb_series(code, list(AGGREGATES), 2, datetime.now().year), "World Development Indicators"
 
