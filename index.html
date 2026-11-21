@@ -216,12 +216,12 @@ footer{border-top:1px solid var(--rule);padding-block:18px 32px;font-size:13px;c
 
   <section id="capacity" aria-labelledby="h-cap">
     <div class="sec-head"><span class="kicker">Evidence</span><h2 id="h-cap">Capacity</h2>
-      <p>Two measures of whether processing keeps up. When fewer than 100 applications are completed for every 100 received, the backlog grows. Months of work is how long it would take to finish everything pending at that year's completion pace, if no new applications arrived.</p></div>
+      <p>Two measures of whether processing keeps up. When fewer than 100 applications are completed for every 100 received, the backlog grows. Months of work is how long it would take to finish everything pending at that year's completion pace, if no new applications arrived. It holds that pace fixed, so it cannot show whether staffing, technology or policy will speed decisions up or slow them down: it measures the backlog against current output, not how long an applicant waits. USCIS publishes measured processing times separately.</p></div>
     <div class="grid2">
       <div class="panel"><h3 id="t-ratio">Completed for every 100 received</h3><svg class="chart" id="c-ratio" role="img" aria-labelledby="t-ratio"></svg>
         <p class="note">Bars below the 100 line are years when the backlog grew.</p></div>
-      <div class="panel"><h3 id="t-months">Backlog in months of work</h3><svg class="chart" id="c-months" role="img" aria-labelledby="t-months"></svg>
-        <p class="note">Pending applications divided by monthly completions.</p></div>
+      <div class="panel"><h3 id="t-months">Backlog in months of work at each year's pace</h3><svg class="chart" id="c-months" role="img" aria-labelledby="t-months"></svg>
+        <p class="note">Pending applications divided by that year's monthly completions. Changes in capacity show up only after they change completions.</p></div>
     </div>
     <div class="panel"><h3>Changes in pending cases not explained by receipts and completions</h3>
       <p class="note">In most years, pending at year end equals last year's pending plus receipts minus completions, within a few percent. Larger gaps usually mean cases were closed or moved without a decision, reclassified, or corrected in reporting. They are worth checking before drawing conclusions.</p>
@@ -445,16 +445,16 @@ function drawFindings(){
   const below=[...Array(5)].map((_,k)=>ratio(s,L-k)).filter(v=>v!=null&&v<100).length;
   const scope=st.scope==="all"?"Pending applications":`Pending ${esc(scopeLabel().replace(/^[A-Z0-9-]+ · /,""))} applications`;
   let sum=p0!=null&&p1!=null?`${scope} went from ${fmtWords(p0)} in ${fy(D.years[first]).replace("FY","FY20")} to <b>${fmtWords(p1)}</b> in June 2026`:"";
-  if(m1!=null)sum+=`. At the FY2026 processing pace, finishing them would take about <b>${Math.round(m1)} months</b>${m0!=null?`, compared with ${Math.round(m0)} months in FY20${String(D.years[first]).slice(2)}`:""}.`;
+  if(m1!=null)sum+=`. That is about <b>${Math.round(m1)} months of work</b> at the FY2026 pace of decisions${m0!=null?`, compared with ${Math.round(m0)} months in FY20${String(D.years[first]).slice(2)}`:""}. The measure holds that pace fixed and assumes no new applications, so it compares the backlog with current output; it is not how long an applicant waits.`;
   else if(sum)sum+=".";
   $("summary").innerHTML=sum;
   const card=(lab,big,sub,cls="")=>`<div class="card"><span class="lab">${lab}</span><span class="big ${cls}">${big}</span><span class="sub">${sub}</span></div>`;
   {const g=D.groups.find(z=>z.id===st.scope);$("ctx-hint").hidden=!(st.scope==="cat:Humanitarian"||(g&&g.category==="Humanitarian"))}
   $("cards").innerHTML=
     card("Pending, June 2026",fmtShort(p1),p0?`${(p1/p0).toFixed(1)}× the FY${D.years[first]} level of ${fmtShort(p0)}`:"","pend")+
-    card("Backlog in months of work",m1!=null?Math.round(m1)+" mo":"–",m0!=null?`${Math.round(m0)} months in FY${D.years[first]}`:"At the FY2026 completion pace","pend")+
-    card("Completed per 100 received",ratio(s,L)!=null?Math.round(ratio(s,L)):"–",`FY2026 to date; below 100 in ${below} of the last 5 years`)+
-    card("Completions, FY2026 pace",pct(c25>0?c26/c25-1:null),`vs. FY2025 (${fmtShort(c26)} a year vs. ${fmtShort(c25)}). Receipts: ${pct(r25>0?r26/r25-1:null)}`);
+    card("Months of work at current pace",m1!=null?Math.round(m1)+" mo":"–",m0!=null?`${Math.round(m0)} months in FY${D.years[first]}`:"At the FY2026 completion pace","pend")+
+    card("Completed per 100 received",ratio(s,L)!=null?Math.round(ratio(s,L)):"–",`FY2026 to date; below 100 in ${below===5?"each":below} of the last 5 years`)+
+    card("Completions, FY2026 pace",pct(c25>0?c26/c25-1:null),`vs. FY2025 (${(c26/1e6).toFixed(1)}M a year vs. ${(c25/1e6).toFixed(1)}M). Receipts: ${pct(r25>0?r26/r25-1:null)}`);
 }
 
 /* ---------- caseload and capacity ---------- */
@@ -672,19 +672,19 @@ function drawOrigins(x){
   $("o-us").innerHTML=hbars(rows,fmtShort,Math.max(...rows.map(r=>r.val)));
   $("o-n-us").textContent=`The ${o.countries.length} countries shown had the most new US claims from 2022 to ${full}. Together they made up ${Math.round(x.org.topShare*100)}% of US claims with a recorded origin in those years.${unk/tot>.05?` In ${ylab(originYear)}, ${Math.round(unk/tot*100)}% of US claims (${fmtWords(unk)}) have no recorded origin, mostly claims filed with USCIS, so the figures for each country that year are too low.`:""} ${americas(o.countries)}`;
   // conditions table
-  const cd=o.conditions,wb=o.sources.world_bank,uc=o.sources.ucdp,fi=oy.indexOf(full),i19=oy.indexOf(2019),li=oy.length-1;
+  const cd=o.conditions,wb=o.sources.world_bank,uc=o.sources.ucdp,fi=oy.indexOf(full),i13=oy.indexOf(2013),i19=oy.indexOf(2019),li=oy.length-1;
   const latest=arr=>{if(!arr)return null;for(let k=arr.length-1;k>=0;k--)if(arr[k]!=null)return{v:arr[k],y:oy[k]};return null};
   const cell=(l,f)=>l?`${f(l.v)}<small class="yr">${l.y}</small>`:"–";
-  const head=`<tr><th>Country</th><th class="r">US claims, ${full}</th><th class="r">US share of its claims worldwide, ${full}</th><th class="r">Displaced abroad, ${ylab(oy[li])}</th><th class="r">Change since 2019</th><th class="r">Deaths in organized violence</th><th class="r">Homicides per 100,000</th><th class="r">GDP per person, change since 2019</th><th class="r">Political stability (−2.5 to 2.5)</th></tr>`;
+  const head=`<tr><th>Country</th><th class="r">US claims, ${full}</th><th class="r">US share of its claims worldwide, ${full}</th><th class="r">Displaced abroad, ${ylab(oy[li])}</th><th class="r">Displaced abroad, change since 2019</th><th class="r">Deaths in organized violence</th><th class="r">Homicides per 100,000</th><th class="r">GDP per person, change 2013–2019</th><th class="r">GDP per person, change 2019 to latest</th><th class="r">Political stability (−2.5 to 2.5)</th></tr>`;
   $("o-head").innerHTML=head;
-  $("o-body").innerHTML=o.countries.map(c=>{const z=cd[c.iso]||{},g=z.gdp_pc,g19=g&&g[i19],gl=latest(g);
+  $("o-body").innerHTML=o.countries.map(c=>{const z=cd[c.iso]||{},g=z.gdp_pc,g13=g&&g[i13],g19=g&&g[i19],gl=latest(g);
     const ab0=c.displaced_abroad[i19],ab1=c.displaced_abroad[li];
     return `<tr><td>${esc(c.name)}</td><td class="r">${fmtShort(c.us_claims[fi])}</td><td class="r">${c.world_claims[fi]>0?Math.round(c.us_claims[fi]/c.world_claims[fi]*100)+"%":"–"}</td>
       <td class="r">${fmtShort(ab1)}</td><td class="r">${ab0>0?pct(ab1/ab0-1):"–"}</td>
       <td class="r">${cell(latest(z.conflict_deaths),fmtFull)}</td><td class="r">${cell(latest(z.homicide),v=>v.toFixed(1))}</td>
-      <td class="r">${g19&&gl?`${pct(gl.v/g19-1)}<small class="yr">${gl.y}</small>`:"–"}</td><td class="r">${cell(latest(z.stability),v=>v.toFixed(2))}</td></tr>`}).join("");
+      <td class="r">${g13&&g19?pct(g19/g13-1):"–"}</td><td class="r">${g19&&gl?`${pct(gl.v/g19-1)}<small class="yr">${gl.y}</small>`:"–"}</td><td class="r">${cell(latest(z.stability),v=>v.toFixed(2))}</td></tr>`}).join("");
   const miss=[!uc&&"deaths in organized violence (UCDP)",!wb&&"homicides, GDP per person and political stability (World Bank)"].filter(Boolean);
-  $("o-n-cond").innerHTML=`${miss.length?`<b>Not loaded yet:</b> ${miss.join(" and ")}. Run <code>python3 pipeline/build_global.py</code> with internet access to fill these columns. `:""}Displaced abroad counts refugees, asylum seekers and others in need of international protection from each country, wherever they are. Deaths in organized violence are UCDP best estimates for state-based conflict, non-state conflict (including fighting between armed groups such as cartels) and one-sided violence against civilians${uc?` (version ${esc(uc)})`:""}; they leave out most ordinary crime, which the homicide rate covers. Political stability is the World Bank's Worldwide Governance Indicator; higher is more stable. Small numbers show the year of each value. These are conditions people leave, not causes the data can prove: US policy, distance, family ties and other countries' policies also shape where people file.`;
+  $("o-n-cond").innerHTML=`${miss.length?`<b>Not loaded yet:</b> ${miss.join(" and ")}. Run <code>python3 pipeline/build_global.py</code> with internet access to fill these columns. `:""}Displaced abroad counts refugees, asylum seekers and others in need of international protection from each country, wherever they are. Deaths in organized violence are UCDP best estimates for state-based conflict, non-state conflict (including fighting between armed groups such as cartels) and one-sided violence against civilians${uc?` (version ${esc(uc)})`:""}; they leave out most ordinary crime, which the homicide rate covers. GDP per person is in constant US dollars and is shown for two periods, so a collapse before 2019 (Venezuela) and a decline after it (Haiti, Cuba) are both visible; figures for Venezuela and Cuba rely heavily on World Bank estimates because official statistics are limited. Political stability is the World Bank's Worldwide Governance Indicator; higher is more stable. Small numbers show the year of each value. These are conditions people leave, not causes the data can prove: US policy, distance, family ties and other countries' policies also shape where people file.`;
 }
 function drawAsylum(){
   const x=asyData();if(!x){$("asylum").querySelectorAll(".grid2,.panel,.sc").forEach(e=>e.remove());return}
