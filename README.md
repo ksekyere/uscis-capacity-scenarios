@@ -60,16 +60,30 @@ These are arithmetic projections of stated assumptions, not forecasts. They igno
 
 ## Asylum demand method
 
-Receipts measure what people were able to file, not how many people seek protection. For affirmative asylum (form I-589) the dashboard also estimates demand from UNHCR's count of new asylum claims worldwide:
+Receipts measure what people were able to file, not how many people seek protection. For affirmative asylum (form I-589) the dashboard also estimates demand from UNHCR's count of new asylum claims worldwide.
+
+For each projected year *t* (FY2027 to FY2030):
 
 ```
-US claims (t)         = world new claims (latest full year, or 3-year average) × US share of world claims
-                        × [ (1 − m) × (1 + world growth)^(t − latest)
-                            +    m  × (1 + main-origin displacement growth)^(t − latest) ]
-modeled I-589s (FY t) = US claims (t) × I-589 forms per 100 US claims ÷ 100
+projected US claims (t) = W × s × [ (1 − m) × (1 + g_world)^(t − T)  +  m × (1 + g_origin)^(t − T) ]
+modeled I-589s (t)      = projected US claims (t) × r ÷ 100
 ```
 
-`m` is the share of US claims with a recorded origin that came from the ten main origin countries in 2022 to the latest full year (about 73%). Claims from those countries follow the displacement slider; claims from everywhere else follow world claims. With both sliders at the same value the formula reduces to world claims × share × ratio.
+| Symbol | Meaning | Default |
+|---|---|---|
+| *t* | The year being projected | FY2027 to FY2030 |
+| *T* | The latest full calendar year of UNHCR data, the starting point | 2025 |
+| *t − T* | Years from the starting point to the projected year | 2 for FY2027, 5 for FY2030 |
+| *W* | New asylum claims worldwide in year *T* (or the average of the last three years) | 2.74 million |
+| *s* | US share of world claims, a fixed percentage taken from past years (slider) | 30% (2022–2025 average) |
+| *m* | Share of US claims from the ten main origin countries | about 73% |
+| *g_world* | Yearly change in world claims (slider) | 0% |
+| *g_origin* | Yearly change in people displaced from the main origin countries (slider) | 0% |
+| *r* | I-589 forms filed per 100 US claims (slider) | 42 |
+
+The left side is the result; it does not appear on the right. Past US claims enter only through the share *s*, which is set once from history and then held fixed (or changed with its slider). Claims from the main origin countries grow with *g_origin*; claims from everywhere else grow with *g_world*. With both growth rates equal, the formula reduces to W × s × (1 + g)^(t − T).
+
+Example with the defaults, for FY2030: 2.74 million × 30% = 822,000 projected US claims (no growth, so the bracket equals 1), × 42 ÷ 100 = about 345,000 I-589 forms a year.
 
 - **World new claims:** first-time asylum applications in every country, calendar years, from UNHCR (`app_type = "N"`, so appeals and repeat claims are excluded). UNHCR counts most countries' claims as people. US claims filed with USCIS are reported as cases (one application can cover a family) in 2013–2020 and 2025, and as people in 2021–2024; immigration court claims are counted as people.
 - **US share of world claims:** averaged 10% in 2013–2019 and 30% in 2022–2025.
