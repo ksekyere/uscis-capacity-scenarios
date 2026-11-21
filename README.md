@@ -30,7 +30,7 @@ The page has two views, each with its own link so it can be shared directly:
 - **Completed:** applications decided or otherwise closed during the year. For most forms this equals approved plus denied. For some humanitarian forms (affirmative asylum, credible fear and reasonable fear screenings) it also includes other outcomes, such as referrals to immigration court and administrative closures, so it can be larger than approved plus denied.
 - **Pending:** applications awaiting a decision at the end of the period (September 30, or June 30 for FY2026).
 - **Completed per 100 received:** completed ÷ received × 100. Below 100 means the backlog grew that year.
-- **Months of work:** pending ÷ (annual completions ÷ 12). How long it would take to finish everything pending at that year's completion pace if nothing new arrived.
+- **Months of work:** pending ÷ (annual completions ÷ 12). How long it would take to finish everything pending at that year's completion pace if nothing new arrived. It holds the pace of decisions fixed, so it does not anticipate changes in staffing, technology or policy; it measures the backlog against current output, not how long an applicant waits. USCIS publishes measured processing times separately (a planned addition).
 - **Fiscal year:** October 1 to September 30. FY2026 covers October 2025 to June 2026 (9 months). Where a full-year rate is needed, FY2026 received and completed counts are annualized (× 12/9). Pending is never annualized.
 
 ## Scenario method
